@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-6">
+        <h3>用户管理</h3>
+    </div>
+    <div class="col-md-6 text-end">
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addUserModal">
+            添加用户
+        </button>
+    </div>
+</div>
+
+<!-- 添加用户模态框 -->
+<div class="modal fade" id="addUserModal" tabindex="-1" aria-labelledby="addUserModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addUserModalLabel">添加用户</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="POST" action="{{ url_for('user.add_user') }}">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="username" class="form-label">用户名</label>
+                        <input type="text" class="form-control" id="username" name="username" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label">密码</label>
+                        <input type="password" class="form-control" id="password" name="password" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="role" class="form-label">角色</label>
+                        <select class="form-control" id="role" name="role">
+                            <option value="user">普通用户</option>
+                            <option value="admin">管理员</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="submit" class="btn btn-primary">添加</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- 用户列表 -->
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>用户名</th>
+                        <th>角色</th>
+                        <th>创建时间</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in users %}
+                    <tr>
+                        <td>{{ user.id }}</td>
+                        <td>{{ user.username }}</td>
+                        <td>
+                            {% if user.role == 'admin' %}
+                                <span class="badge bg-danger">管理员</span>
+                            {% else %}
+                                <span class="badge bg-secondary">普通用户</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ user.create_time.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                        <td>
+                            <button type="button" class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#editUserModal{{ user.id }}">
+                                编辑
+                            </button>
+                            {% if user.id != current_user.id %}
+                            <form method="POST" action="{{ url_for('user.delete_user', id=user.id) }}" style="display: inline;">
+                                <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('确定要删除这个用户吗？')">
+                                    删除
+                                </button>
+                            </form>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <!-- 编辑用户模态框 -->
+                    <div class="modal fade" id="editUserModal{{ user.id }}" tabindex="-1" aria-labelledby="editUserModalLabel" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="editUserModalLabel">编辑用户</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <form method="POST" action="{{ url_for('user.edit_user', id=user.id) }}">
+                                    <div class="modal-body">
+                                        <div class="mb-3">
+                                            <label for="edit_username_{{ user.id }}" class="form-label">用户名</label>
+                                            <input type="text" class="form-control" id="edit_username_{{ user.id }}" name="username" value="{{ user.username }}" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="edit_password_{{ user.id }}" class="form-label">新密码（留空则不修改）</label>
+                                            <input type="password" class="form-control" id="edit_password_{{ user.id }}" name="password">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="edit_role_{{ user.id }}" class="form-label">角色</label>
+                                            <select class="form-control" id="edit_role_{{ user.id }}" name="role">
+                                                <option value="user" {% if user.role =='user' %}selected{% endif %}>普通用户</option>
+                                                <option value="admin" {% if user.role =='admin' %}selected{% endif %}>管理员</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                                        <button type="submit" class="btn btn-primary">保存</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

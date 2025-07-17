@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-6">
+        <h3>错误日志管理</h3>
+    </div>
+</div>
+
+<!-- 错误日志列表 -->
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>错误信息</th>
+                        <th>错误时间</th>
+                        <!-- 可以根据 ErrorLog 模型添加更多列 -->
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for log in error_logs %}
+                    <tr>
+                        <td>{{ log.id }}</td>
+                        <td>{{ log.error_message }}</td>
+                        <td>{{ log.error_time.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                        <!-- 可以根据 ErrorLog 模型添加更多列的显示 -->
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-6">
+        <h3>成员管理</h3>
+    </div>
+    <div class="col-md-6 text-end">
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addMemberModal">
+            添加成员
+        </button>
+    </div>
+</div>
+
+<!-- 添加成员模态框 -->
+<div class="modal fade" id="addMemberModal" tabindex="-1" aria-labelledby="addMemberModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addMemberModalLabel">添加成员</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="POST" action="{{ url_for('member.add_member') }}">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="name" class="form-label">姓名</label>
+                        <input type="text" class="form-control" id="name" name="name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">邮箱</label>
+                        <input type="email" class="form-control" id="email" name="email" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="department_id" class="form-label">所属部门</label>
+                        <select class="form-control" id="department_id" name="department_id" required>
+                            <option value="">请选择部门</option>
+                            {% for department in departments %}
+                                <option value="{{ department.id }}">{{ department.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="position" class="form-label">职位</label>
+                        <input type="text" class="form-control" id="position" name="position">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="submit" class="btn btn-primary">添加</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- 成员列表 -->
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>姓名</th>
+                        <th>邮箱</th>
+                        <th>所属部门</th>
+                        <th>职位</th>
+                        <th>创建时间</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for member in members %}
+                    <tr>
+                        <td>{{ member.id }}</td>
+                        <td>{{ member.name }}</td>
+                        <td>{{ member.email }}</td>
+                        <td>{{ member.department.name if member.department else '无部门' }}</td>
+                        <td>{{ member.position or '无' }}</td>
+                        <td>{{ member.create_time.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                        <td>
+                            <button type="button" class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#editMemberModal{{ member.id }}">
+                                编辑
+                            </button>
+                            <form method="POST" action="{{ url_for('member.delete_member', id=member.id) }}" style="display: inline;">
+                                <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('确定要删除这个成员吗？')">
+                                    删除
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    <!-- 编辑成员模态框 -->
+                    <div class="modal fade" id="editMemberModal{{ member.id }}" tabindex="-1" aria-labelledby="editMemberModalLabel" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="editMemberModalLabel">编辑成员</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <form method="POST" action="{{ url_for('member.edit_member', id=member.id) }}">
+                                    <div class="modal-body">
+                                        <div class="mb-3">
+                                            <label for="edit_name_{{ member.id }}" class="form-label">姓名</label>
+                                            <input type="text" class="form-control" id="edit_name_{{ member.id }}" name="name" value="{{ member.name }}" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="edit_email_{{ member.id }}" class="form-label">邮箱</label>
+                                            <input type="email" class="form-control" id="edit_email_{{ member.id }}" name="email" value="{{ member.email }}" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="edit_department_id_{{ member.id }}" class="form-label">所属部门</label>
+                                            <select class="form-control" id="edit_department_id_{{ member.id }}" name="department_id" required>
+                                                <option value="">请选择部门</option>
+                                                {% for department in departments %}
+                                                    <option value="{{ department.id }}" {% if member.department_id == department.id %}selected{% endif %}>{{ department.name }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="edit_position_{{ member.id }}" class="form-label">职位</label>
+                                            <input type="text" class="form-control" id="edit_position_{{ member.id }}" name="position" value="{{ member.position or '' }}">
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                                        <button type="submit" class="btn btn-primary">保存</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

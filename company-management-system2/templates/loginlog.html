@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-6">
+        <h3>登录日志管理</h3>
+    </div>
+</div>
+
+<!-- 登录日志列表 -->
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>用户名</th>
+                        <th>IP 地址</th>
+                        <th>登录时间</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for log in login_logs %}
+                    <tr>
+                        <td>{{ log.id }}</td>
+                        <td>{{ log.user.username if log.user else '未知用户' }}</td>
+                        <td>{{ log.ip_address }}</td>
+                        <td>{{ log.login_time.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-3 mb-4">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <h5 class="card-title">部门总数</h5>
+                <p class="card-text display-4">{{ department_count }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-4">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <h5 class="card-title">成员总数</h5>
+                <p class="card-text display-4">{{ member_count }}</p>
+            </div>
+        </div>
+    </div>
+    <!-- 其他统计卡片 -->
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">系统信息</div>
+            <div class="card-body">
+                <table class="table">
+                    <tbody>
+                        <tr><th>系统名称</th><td>{{ system_info.system.system_name }}</td></tr>
+                        <tr><th>版本</th><td>{{ system_info.system.version }}</td></tr>
+                        <tr><th>操作系统</th><td>{{ system_info.system.os }}</td></tr>
+                        <tr><th>CPU核数</th><td>{{ system_info.cpu.cpu_count }}</td></tr>
+                        <tr><th>总内存</th><td>{{ system_info.memory.total_memory }} GB</td></tr>
+                        <!-- 其他系统信息 -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

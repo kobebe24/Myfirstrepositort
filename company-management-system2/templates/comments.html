@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-6">
+        <h3>评论管理</h3>
+    </div>
+</div>
+
+<!-- 评论列表 -->
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>用户</th>
+                        <th>内容</th>
+                        <th>创建时间</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for comment in comments %}
+                    <tr>
+                        <td>{{ comment.id }}</td>
+                        <td>{{ comment.user.username if comment.user else '未知用户' }}</td>
+                        <td>{{ comment.content|truncate(50) }}</td>
+                        <td>{{ comment.create_time.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                        <td>
+                            <button type="button" class="btn btn-sm btn-info" data-bs-toggle="modal" data-bs-target="#viewCommentModal{{ comment.id }}">
+                                查看
+                            </button>
+                            <form method="POST" action="{{ url_for('comment.delete_comment', id=comment.id) }}" style="display: inline;">
+                                <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('确定要删除这个评论吗？')">
+                                    删除
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    <!-- 查看评论模态框 -->
+                    <div class="modal fade" id="viewCommentModal{{ comment.id }}" tabindex="-1" aria-labelledby="viewCommentModalLabel" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="viewCommentModalLabel">评论详情</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="mb-3">
+                                        <label class="form-label">用户</label>
+                                        <p class="form-control-plaintext">{{ comment.user.username if comment.user else '未知用户' }}</p>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">内容</label>
+                                        <p class="form-control-plaintext">{{ comment.content }}</p>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">创建时间</label>
+                                        <p class="form-control-plaintext">{{ comment.create_time.strftime('%Y-%m-%d %H:%M:%S') }}</p>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

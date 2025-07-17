@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-6">
+        <h3>通知公告</h3>
+    </div>
+    <div class="col-md-6 text-end">
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addAnnouncementModal">
+            添加公告
+        </button>
+    </div>
+</div>
+
+<!-- 添加公告模态框 -->
+<div class="modal fade" id="addAnnouncementModal" tabindex="-1" aria-labelledby="addAnnouncementModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addAnnouncementModalLabel">添加公告</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="POST" action="{{ url_for('operation.add_announcement') }}">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="title" class="form-label">标题</label>
+                        <input type="text" class="form-control" id="title" name="title" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="content" class="form-label">内容</label>
+                        <textarea class="form-control" id="content" name="content" rows="10" required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="submit" class="btn btn-primary">发布</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- 公告列表 -->
+<div class="card">
+    <div class="card-body">
+        <div class="list-group">
+            {% for announcement in announcements %}
+            <div class="list-group-item list-group-item-action">
+                <div class="d-flex w-100 justify-content-between">
+                    <h5 class="mb-1">{{ announcement.title }}</h5>
+                    <small>{{ announcement.create_time.strftime('%Y-%m-%d %H:%M:%S') }}</small>
+                </div>
+                <p class="mb-1">{{ announcement.content|truncate(100) }}</p>
+                <div class="d-flex w-100 justify-content-between">
+                    <small>发布者: {{ announcement.creator.username if announcement.creator else '未知用户' }}</small>
+                    <div>
+                        <button type="button" class="btn btn-sm btn-info" data-bs-toggle="modal" data-bs-target="#viewAnnouncementModal{{ announcement.id }}">
+                            查看
+                        </button>
+                        <button type="button" class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#editAnnouncementModal{{ announcement.id }}">
+                            编辑
+                        </button>
+                        <form method="POST" action="{{ url_for('operation.delete_announcement', id=announcement.id) }}" style="display: inline;">
+                            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('确定要删除这个公告吗？')">
+                                删除
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 查看公告模态框 -->
+            <div class="modal fade" id="viewAnnouncementModal{{ announcement.id }}" tabindex="-1" aria-labelledby="viewAnnouncementModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="viewAnnouncementModalLabel">{{ announcement.title }}</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label class="form-label">发布者</label>
+                                <p class="form-control-plaintext">{{ announcement.creator.username if announcement.creator else '未知用户' }}</p>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">发布时间</label>
+                                <p class="form-control-plaintext">{{ announcement.create_time.strftime('%Y-%m-%d %H:%M:%S') }}</p>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">内容</label>
+                                <div class="bg-light p-3 rounded">
+                                    {{ announcement.content|safe }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 编辑公告模态框 -->
+            <div class="modal fade" id="editAnnouncementModal{{ announcement.id }}" tabindex="-1" aria-labelledby="editAnnouncementModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="editAnnouncementModalLabel">编辑公告</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <form method="POST" action="{{ url_for('operation.edit_announcement', id=announcement.id) }}">
+                            <div class="modal-body">
+                                <div class="mb-3">
+                                    <label for="edit_title_{{ announcement.id }}" class="form-label">标题</label>
+                                    <input type="text" class="form-control" id="edit_title_{{ announcement.id }}" name="title" value="{{ announcement.title }}" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="edit_content_{{ announcement.id }}" class="form-label">内容</label>
+                                    <textarea class="form-control" id="edit_content_{{ announcement.id }}" name="content" rows="10" required>{{ announcement.content }}</textarea>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                                <button type="submit" class="btn btn-primary">保存</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

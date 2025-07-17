@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-6">
+        <h3>部门管理</h3>
+    </div>
+    <div class="col-md-6 text-end">
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addDepartmentModal">
+            添加部门
+        </button>
+    </div>
+</div>
+
+<!-- 添加部门模态框 -->
+<div class="modal fade" id="addDepartmentModal" tabindex="-1" aria-labelledby="addDepartmentModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addDepartmentModalLabel">添加部门</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="POST" action="{{ url_for('department.add_department') }}">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="name" class="form-label">部门名称</label>
+                        <input type="text" class="form-control" id="name" name="name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="manager_id" class="form-label">部门经理</label>
+                        <select class="form-control" id="manager_id" name="manager_id">
+                            <option value="">无</option>
+                            {% for user in users %}
+                                <option value="{{ user.id }}">{{ user.username }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="submit" class="btn btn-primary">添加</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- 部门列表 -->
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>部门名称</th>
+                        <th>部门经理</th>
+                        <th>创建时间</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for department in departments %}
+                    <tr>
+                        <td>{{ department.id }}</td>
+                        <td>{{ department.name }}</td>
+                        <td>{{ department.manager.username if department.manager else '无' }}</td>
+                        <td>{{ department.create_time.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                        <td>
+                            <button type="button" class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#editDepartmentModal{{ department.id }}">
+                                编辑
+                            </button>
+                            <form method="POST" action="{{ url_for('department.delete_department', id=department.id) }}" style="display: inline;">
+                                <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('确定要删除这个部门吗？')">
+                                    删除
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    <!-- 编辑部门模态框 -->
+                    <div class="modal fade" id="editDepartmentModal{{ department.id }}" tabindex="-1" aria-labelledby="editDepartmentModalLabel" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="editDepartmentModalLabel">编辑部门</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <form method="POST" action="{{ url_for('department.edit_department', id=department.id) }}">
+                                    <div class="modal-body">
+                                        <div class="mb-3">
+                                            <label for="edit_name_{{ department.id }}" class="form-label">部门名称</label>
+                                            <input type="text" class="form-control" id="edit_name_{{ department.id }}" name="name" value="{{ department.name }}" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="edit_manager_id_{{ department.id }}" class="form-label">部门经理</label>
+                                            <select class="form-control" id="edit_manager_id_{{ department.id }}" name="manager_id">
+                                                <option value="">无</option>
+                                                {% for user in users %}
+                                                    <option value="{{ user.id }}" {% if department.manager_id == user.id %}selected{% endif %}>{{ user.username }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                                        <button type="submit" class="btn btn-primary">保存</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
