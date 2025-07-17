@@ -174,6 +174,15 @@ def logout():
 
 
 if __name__ == '__main__':
+    import socket
+
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    s.connect(("8.8.8.8", 80))
+    local_ip = s.getsockname()[0]
+    s.close()
+
+    app.run(host=local_ip, port=5000, debug=True)
+
     with app.app_context():
         db.create_all()  # 启动时自动创建表
     app.run(debug=app.config['DEBUG'])
